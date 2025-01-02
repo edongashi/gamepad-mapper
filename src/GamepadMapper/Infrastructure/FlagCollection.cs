@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace GamepadMapper.Infrastructure
@@ -10,6 +11,24 @@ namespace GamepadMapper.Infrastructure
         public bool Has(string flag)
         {
             return currentFlags.TryGetValue(flag, out var value) && value > 0;
+        }
+
+        public bool HasExactly(HashSet<string> flags)
+        {
+            if (flags.Count != currentFlags.Count)
+            {
+                return false;
+            }
+
+            foreach (var flag in flags)
+            {
+                if (!Has(flag))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public void Add(string flag)
@@ -28,7 +47,14 @@ namespace GamepadMapper.Infrastructure
         {
             if (currentFlags.TryGetValue(flag, out var value))
             {
-                currentFlags[flag] = Math.Max(0, value - 1);
+                if (value > 1)
+                {
+                    currentFlags[flag] = value - 1;
+                } 
+                else
+                {
+                    currentFlags.Remove(flag);
+                }
             }
         }
     }

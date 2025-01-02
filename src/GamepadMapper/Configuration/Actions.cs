@@ -194,7 +194,7 @@ namespace GamepadMapper.Configuration
 
         public string String { get; }
 
-        public override string Stringify() => $"sendchar({Utils.Escape(String)})";
+        public override string Stringify() => $"sendstr({Utils.Escape(String)})";
     }
 
     public class SetPageAction : ActionDescriptor

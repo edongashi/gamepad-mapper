@@ -10,19 +10,19 @@ namespace GamepadMapper.Infrastructure
     {
         private class CommandClause
         {
-            public CommandClause(CommandFlag[] flags, IAction action)
+            public CommandClause(string[] flags, IAction action)
             {
-                Flags = flags;
+                Flags = flags != null ? new HashSet<string>(flags, StringComparer.OrdinalIgnoreCase) : null;
                 Action = action;
             }
 
-            public CommandFlag[] Flags { get; }
+            public HashSet<string> Flags { get; }
 
             public IAction Action { get; }
 
             public bool Matches(FlagCollection flags)
             {
-                return Flags.All(f => f.Negate ? !flags.Has(f.Flag) : flags.Has(f.Flag));
+                return Flags == null || flags.HasExactly(Flags);
             }
         }
 
@@ -31,6 +31,8 @@ namespace GamepadMapper.Infrastructure
             IActionFactory actionFactory)
         {
             var dict = new Dictionary<string, List<CommandClause>>(StringComparer.OrdinalIgnoreCase);
+            var unconditionalBindings = new Dictionary<string, ActionDescriptor>(StringComparer.OrdinalIgnoreCase);
+
             foreach (var binding in bindings)
             {
                 if (!dict.ContainsKey(binding.Command))
@@ -38,7 +40,19 @@ namespace GamepadMapper.Infrastructure
                     dict[binding.Command] = new List<CommandClause>();
                 }
 
-                dict[binding.Command].Add(new CommandClause(binding.Flags, actionFactory.Create(binding.Action)));
+                if (binding.Flags != null)
+                {
+                    dict[binding.Command].Add(new CommandClause(binding.Flags, actionFactory.Create(binding.Action)));
+                }
+                else
+                {
+                    unconditionalBindings[binding.Command] = binding.Action;
+                }
+            }
+
+            foreach (var pair in unconditionalBindings)
+            {
+                dict[pair.Key].Add(new CommandClause(null, actionFactory.Create(pair.Value)));
             }
 
             return new CommandBindingCollection(dict);
