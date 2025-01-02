@@ -109,6 +109,7 @@ namespace GamepadMapper.Configuration.Parsing
             }
 
             streamWriter.WriteLine(line);
+            streamWriter.Flush();
         }
 
         public void Dispose() => streamWriter?.Dispose();

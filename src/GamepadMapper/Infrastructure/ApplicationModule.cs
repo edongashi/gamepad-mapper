@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices.ComTypes;
-using System.Runtime.Remoting.Messaging;
-using WindowsInput;
+﻿using WindowsInput;
 using GamepadMapper.Configuration;
 using GamepadMapper.Input;
 using GamepadMapper.Menus;
@@ -28,19 +26,17 @@ namespace GamepadMapper.Infrastructure
             Bind<IKeyboardSimulator>().ToConstant(simulator.Keyboard);
             Bind<IMouseSimulator>().ToConstant(simulator.Mouse);
             Bind<RootConfiguration>().ToConstant(RootConfiguration);
+            Bind<FlagCollection>().ToSelf().InSingletonScope();
             Bind<IActionFactory>().To<ActionFactory>();
             Bind<IActionFactoryFactory>().ToFactory();
             Bind<IProfileFactory>().To<ProfileFactory>();
-
             Bind<IGamePadStateReader>().To<GamePadStateReader>().InSingletonScope();
             Bind<ProfileCollection>()
                 .ToMethod(ctx => ProfileCollection.FromRootConfiguration(
                     RootConfiguration, ctx.Kernel.Get<IProfileFactory>()))
                 .InSingletonScope();
+            Bind<IMenuController>().To<MenuController>().InSingletonScope();
             Bind<ApplicationLoop>().ToSelf().InSingletonScope();
-            Bind<IMenuController>()
-                .ToMethod(ctx => new MenuController(RootConfiguration, ctx.Kernel.Get<IActionFactoryFactory>()))
-                .InSingletonScope();
         }
     }
 }

@@ -47,11 +47,12 @@ namespace GamepadMapper.Menus
         private static readonly PropertyChangedEventArgs HelpScreenChanged = new PropertyChangedEventArgs(nameof(HelpScreen));
         private static readonly PropertyChangedEventArgs HelpScreen2Changed = new PropertyChangedEventArgs(nameof(HelpScreen2));
 
-        public MenuController(RootConfiguration config, IActionFactoryFactory factory)
+        public MenuController(RootConfiguration config, FlagCollection flags, IActionFactoryFactory factory)
         {
             var actionFactory = factory.Create(this);
             MenuCollection = new MenuCollection(config.Menus.ToDictionary(m => m.Name, m => Menu.FromConfig(m, actionFactory)));
             GlobalBindings = CommandBindingCollection.FromCollection(config.Bindings, actionFactory);
+            Flags = flags;
             menuStack = new Stack<MenuState>();
             Placement = config.Placement;
         }
@@ -61,6 +62,8 @@ namespace GamepadMapper.Menus
         public MenuCollection MenuCollection { get; }
 
         public CommandBindingCollection GlobalBindings { get; }
+
+        public FlagCollection Flags { get; }
 
         public double PointerAngle => pointerAngle;
 
@@ -336,24 +339,24 @@ namespace GamepadMapper.Menus
             }
 
             var item = currentItem;
-            if (item != null && item.CommandBindings.TryDispatch(command))
+            if (item != null && item.CommandBindings.TryDispatch(command, Flags))
             {
                 return;
             }
 
             var page = currentPage;
-            if (page != null && currentPage.CommandBindings.TryDispatch(command))
+            if (page != null && currentPage.CommandBindings.TryDispatch(command, Flags))
             {
                 return;
             }
 
             var menu = currentMenu;
-            if (menu != null && menu.CommandBindings.TryDispatch(command))
+            if (menu != null && menu.CommandBindings.TryDispatch(command, Flags))
             {
                 return;
             }
 
-            if (GlobalBindings.TryDispatch(command))
+            if (GlobalBindings.TryDispatch(command, Flags))
             {
                 return;
             }

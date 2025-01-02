@@ -24,7 +24,7 @@ namespace GamepadMapper.Configuration
 
     public class MouseMapping : AnalogBinding
     {
-        public MouseMapping(ThumbStick thumbStick) 
+        public MouseMapping(ThumbStick thumbStick)
             : base(thumbStick)
         {
         }
@@ -34,7 +34,7 @@ namespace GamepadMapper.Configuration
 
     public class RadialMenuMapping : AnalogBinding
     {
-        public RadialMenuMapping(ThumbStick thumbStick) 
+        public RadialMenuMapping(ThumbStick thumbStick)
             : base(thumbStick)
         {
         }
@@ -44,7 +44,7 @@ namespace GamepadMapper.Configuration
 
     public class ScrollMapping : AnalogBinding
     {
-        public ScrollMapping(ThumbStick thumbStick) 
+        public ScrollMapping(ThumbStick thumbStick)
             : base(thumbStick)
         {
         }
@@ -82,6 +82,18 @@ namespace GamepadMapper.Configuration
         }
 
         public override string Stringify() => $"{InputKey} = map MOD";
+    }
+
+    public class FlagMapping : ButtonBinding
+    {
+        public FlagMapping(InputKey inputKey, string flag) : base(inputKey)
+        {
+            Flag = flag;
+        }
+
+        public string Flag { get; }
+
+        public override string Stringify() => $"{InputKey} = map flag({Utils.Escape(Flag)})";
     }
 
     public class PressBinding : ButtonBinding

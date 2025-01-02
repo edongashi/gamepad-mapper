@@ -69,16 +69,16 @@ namespace GamepadMapper.Menus
         }
 
         public MenuPage(
-            int index, 
-            HelpConfiguration helpScreen, 
+            int index,
+            HelpConfiguration helpScreen,
             HelpConfiguration helpScreen2,
-            CommandBindingCollection commandBindings, 
+            CommandBindingCollection commandBindings,
             IEnumerable<PageItem> items)
         {
             Index = index;
             HelpScreen = helpScreen;
             HelpScreen2 = helpScreen2;
-            CommandBindings = commandBindings ?? new CommandBindingCollection(null);
+            CommandBindings = commandBindings ?? CommandBindingCollection.Empty();
             Items = items?.ToList() ?? new List<PageItem>();
         }
 

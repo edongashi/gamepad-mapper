@@ -6,11 +6,6 @@ namespace GamepadMapper.Configuration
 {
     public abstract class ActionDescriptor
     {
-        protected static string Escape(string value)
-        {
-            return value.Replace("\"", "\"\"");
-        }
-
         public override string ToString() => Stringify();
 
         public abstract string Stringify();
@@ -25,7 +20,7 @@ namespace GamepadMapper.Configuration
 
         public string Command { get; }
 
-        public override string Stringify() => $"command(\"{Escape(Command)}\")";
+        public override string Stringify() => $"command({Utils.Escape(Command)})";
     }
 
     public class KeyAction : ActionDescriptor
@@ -61,7 +56,7 @@ namespace GamepadMapper.Configuration
 
         public string Menu { get; }
 
-        public override string Stringify() => $"show(\"{Escape(Menu)}\")";
+        public override string Stringify() => $"show({Utils.Escape(Menu)})";
     }
 
     public class RunProgramAction : ActionDescriptor
@@ -76,9 +71,8 @@ namespace GamepadMapper.Configuration
 
         public string Arguments { get; }
 
-        public override string Stringify() => $"run(\"{Escape(Path)}\"" + (Arguments != null
-            ? $",\"{Escape(Arguments)}\")"
-            : ")");
+        public override string Stringify() =>
+            $"run({Utils.Escape(Path)}" + (Arguments != null ? $",{Utils.Escape(Arguments)})" : ")");
     }
 
     public class FlashConfigurationAction : ActionDescriptor
@@ -90,7 +84,7 @@ namespace GamepadMapper.Configuration
 
         public string Key { get; }
 
-        public override string Stringify() => $"flashcfg(\"{Escape(Key)}\")";
+        public override string Stringify() => $"flashcfg({Utils.Escape(Key)})";
     }
 
     public class FlashMessageAction : ActionDescriptor
@@ -108,7 +102,7 @@ namespace GamepadMapper.Configuration
 
         public string Modifier { get; }
 
-        public override string Stringify() => $"flashmsg(\"{Escape(Title)}\",\"{Escape(Message)}\",\"{Escape(Modifier)}\")";
+        public override string Stringify() => $"flashmsg({Utils.Escape(Title)},{Utils.Escape(Message)},{Utils.Escape(Modifier)})";
     }
 
     public class NoOpAction : ActionDescriptor
@@ -125,7 +119,7 @@ namespace GamepadMapper.Configuration
 
         public string Key { get; }
 
-        public override string Stringify() => $"increment(\"{Escape(Key)}\")";
+        public override string Stringify() => $"increment({Utils.Escape(Key)})";
     }
 
     public class DecrementConfigurationAction : ActionDescriptor
@@ -137,7 +131,7 @@ namespace GamepadMapper.Configuration
 
         public string Key { get; }
 
-        public override string Stringify() => $"decrement(\"{Escape(Key)}\")";
+        public override string Stringify() => $"decrement({Utils.Escape(Key)})";
     }
 
     public class ToggleConfigurationAction : ActionDescriptor
@@ -149,7 +143,7 @@ namespace GamepadMapper.Configuration
 
         public string Key { get; }
 
-        public override string Stringify() => $"toggle(\"{Escape(Key)}\")";
+        public override string Stringify() => $"toggle({Utils.Escape(Key)})";
     }
 
     public class ResetConfigurationAction : ActionDescriptor
@@ -161,7 +155,7 @@ namespace GamepadMapper.Configuration
 
         public string Key { get; }
 
-        public override string Stringify() => $"reset(\"{Escape(Key)}\")";
+        public override string Stringify() => $"reset({Utils.Escape(Key)})";
     }
 
     public class SetConfigurationAction : ActionDescriptor
@@ -176,7 +170,7 @@ namespace GamepadMapper.Configuration
 
         public string Value { get; }
 
-        public override string Stringify() => $"set(\"{Escape(Key)}\", \"{Escape(Value)}\")";
+        public override string Stringify() => $"set({Utils.Escape(Key)}, {Utils.Escape(Value)})";
     }
 
     public class SendCharacterAction : ActionDescriptor
@@ -188,7 +182,7 @@ namespace GamepadMapper.Configuration
 
         public char Character { get; }
 
-        public override string Stringify() => $"sendchar(\"{Escape(Character.ToString())}\")";
+        public override string Stringify() => $"sendchar({Utils.Escape(Character.ToString())})";
     }
 
     public class SendStringAction : ActionDescriptor
@@ -200,7 +194,7 @@ namespace GamepadMapper.Configuration
 
         public string String { get; }
 
-        public override string Stringify() => $"sendchar(\"{Escape(String)}\")";
+        public override string Stringify() => $"sendchar({Utils.Escape(String)})";
     }
 
     public class SetPageAction : ActionDescriptor

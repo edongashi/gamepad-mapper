@@ -441,6 +441,19 @@ namespace GamepadMapper.Configuration.Parsing
                             break;
                         }
 
+                        if (string.Equals(row[3].Value, "flag", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (row.Length == 7 && row[4].Value == "(" && row[6].Value == ")")
+                            {
+                                bindings.Add(new FlagMapping(inputKey, row[5].Value));
+                            }
+                            else
+                            {
+                                logger?.WriteLine($"Error: Invalid flag declaration at {stream.Path}:{stream.Line}.");
+                            }
+                            break;
+                        }
+
                         var keys = ParseKeyCodes(row, 3, out end);
                         if (keys == null)
                         {
@@ -668,54 +681,119 @@ namespace GamepadMapper.Configuration.Parsing
                 return null;
             }
 
-            if (tokens.Length > 3 && tokens[2].Value == "=")
+            if (tokens.Length < 4)
             {
-                var command = tokens[1].Value;
-                var action = ParseAction(tokens, 3, out var end);
-                if (action != null)
-                {
-                    if (end != tokens.Length)
-                    {
-                        logger?.WriteLine(
-                            $"Warning: Ignored unknown symbols at {stream.Path}:{stream.Line}.");
-                    }
-
-                    return new CommandBinding(command, action);
-                }
-
-                action = new NoOpAction();
-                logger?.WriteLine($"Error: Could not parse action at {stream.Path}:{stream.Line}.");
-
-                return new CommandBinding(command, action);
+                logger?.WriteLine($"Error: Malformed binding at {stream.Path}:{stream.Line}.");
+                return null;
             }
 
-            logger?.WriteLine($"Error: Malformed binding at {stream.Path}:{stream.Line}.");
-            return null;
+            var command = tokens[1].Value;
+            var flags = new CommandFlag[0];
+            var start = 2;
+
+            if (tokens[2].Value == "(")
+            {
+                var args = ParseArgs(tokens, 2, out start);
+                if (args == null)
+                {
+                    logger?.WriteLine($"Error: Malformed binding flags at {stream.Path}:{stream.Line}.");
+                    return null;
+                }
+                flags = args.Select(CommandFlag.Parse).ToArray();
+                start += 1;
+            }
+
+            if (start >= tokens.Length || tokens[start].Value != "=")
+            {
+                logger?.WriteLine($"Error: Malformed binding at {stream.Path}:{stream.Line}.");
+                return null;
+            }
+
+            var action = ParseAction(tokens, start + 1, out var end);
+            if (action != null)
+            {
+                if (end != tokens.Length)
+                {
+                    logger?.WriteLine(
+                        $"Warning: Ignored unknown symbols at {stream.Path}:{stream.Line}.");
+                }
+
+                return new CommandBinding(command, flags, action);
+            }
+
+            action = new NoOpAction();
+            logger?.WriteLine($"Error: Could not parse action at {stream.Path}:{stream.Line}.");
+
+            return new CommandBinding(command, flags, action);
         }
 
         private static ActionDescriptor ParseCall(Token[] tokens, int start, out int end)
         {
-            Token PeekToken(int offset = 0)
+            var call = tokens[start].Value.ToLower();
+            var args = ParseArgs(tokens, start + 1, out end);
+            switch (call)
             {
-                var index = start + offset;
-                return index < tokens.Length ? tokens[index] : null;
+                case "command":
+                    return args.Count < 1 ? null : new CommandAction(args[0]);
+                case "show":
+                    return args.Count < 1 ? null : new ShowMenuAction(args[0]);
+                case "run":
+                    return args.Count < 1 ? null : new RunProgramAction(args[0], args.Count > 1 ? args[1] : null);
+                case "flashcfg":
+                    return args.Count < 1 ? null : new FlashConfigurationAction(args[0]);
+                case "flashmsg":
+                    if (args.Count < 1)
+                    {
+                        return null;
+                    }
+
+                    var title = args[0];
+                    var text = args.Count > 1 ? args[1] : null;
+                    var modifier = args.Count > 2 ? args[2] : null;
+                    return new FlashMessageAction(title, text, modifier);
+                case "increment":
+                    return args.Count < 1 ? null : new IncrementConfigurationAction(args[0]);
+                case "decrement":
+                    return args.Count < 1 ? null : new DecrementConfigurationAction(args[0]);
+                case "toggle":
+                    return args.Count < 1 ? null : new ToggleConfigurationAction(args[0]);
+                case "reset":
+                    return args.Count < 1 ? null : new ResetConfigurationAction(args[0]);
+                case "set":
+                    return args.Count < 2 ? null : new SetConfigurationAction(args[0], args[1]);
+                case "sendchar":
+                    return args.Count >= 1 && args[0].Length == 1 ? new SendCharacterAction(args[0][0]) : null;
+                case "sendstr":
+                    return args.Count >= 1 ? new SendStringAction(args[0]) : null;
+                case "setpage":
+                    return args.Count >= 1 && InvariantInt.TryParse(args[0], out var page) && page > 0
+                        ? new SetPageAction(page)
+                        : null;
+                default:
+                    return null;
+            }
+        }
+
+        private static List<string> ParseArgs(Token[] tokens, int start, out int end)
+        {
+            Token PeekToken()
+            {
+                return start < tokens.Length ? tokens[start] : null;
             }
 
-            void NextToken(int num = 1)
+            void NextToken()
             {
-                start = Math.Min(start + num, tokens.Length);
+                start = Math.Min(start + 1, tokens.Length);
             }
 
             var token0 = PeekToken();
-            var token1 = PeekToken(1);
-            if (token1 == null || token1.Value != "(")
+            if (token0 == null || token0.Value != "(")
             {
                 end = start;
                 return null;
             }
 
-            var call = token0.Value.ToLower();
-            NextToken(2);
+            NextToken();
             var args = new List<string>();
             while (true)
             {
@@ -763,47 +841,7 @@ namespace GamepadMapper.Configuration.Parsing
             }
 
             end = start;
-            switch (call)
-            {
-                case "command":
-                    return args.Count < 1 ? null : new CommandAction(args[0]);
-                case "show":
-                    return args.Count < 1 ? null : new ShowMenuAction(args[0]);
-                case "run":
-                    return args.Count < 1 ? null : new RunProgramAction(args[0], args.Count > 1 ? args[1] : null);
-                case "flashcfg":
-                    return args.Count < 1 ? null : new FlashConfigurationAction(args[0]);
-                case "flashmsg":
-                    if (args.Count < 1)
-                    {
-                        return null;
-                    }
-
-                    var title = args[0];
-                    var text = args.Count > 1 ? args[1] : null;
-                    var modifier = args.Count > 2 ? args[2] : null;
-                    return new FlashMessageAction(title, text, modifier);
-                case "increment":
-                    return args.Count < 1 ? null : new IncrementConfigurationAction(args[0]);
-                case "decrement":
-                    return args.Count < 1 ? null : new DecrementConfigurationAction(args[0]);
-                case "toggle":
-                    return args.Count < 1 ? null : new ToggleConfigurationAction(args[0]);
-                case "reset":
-                    return args.Count < 1 ? null : new ResetConfigurationAction(args[0]);
-                case "set":
-                    return args.Count < 2 ? null : new SetConfigurationAction(args[0], args[1]);
-                case "sendchar":
-                    return args.Count >= 1 && args[0].Length == 1 ? new SendCharacterAction(args[0][0]) : null;
-                case "sendstr":
-                    return args.Count >= 1 ? new SendStringAction(args[0]) : null;
-                case "setpage":
-                    return args.Count >= 1 && InvariantInt.TryParse(args[0], out var page) && page > 0
-                        ? new SetPageAction(page)
-                        : null;
-                default:
-                    return null;
-            }
+            return args;
         }
     }
 }

@@ -70,9 +70,11 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actuators\FlagMapActuator.cs" />
     <Compile Include="Actuators\SendStringActuator.cs" />
     <Compile Include="Actuators\SendCharacterActuator.cs" />
     <Compile Include="Configuration\Parsing\InvariantNumbers.cs" />
+    <Compile Include="Infrastructure\FlagCollection.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Wpf\ScaleConverter.cs" />
     <Compile Include="Wpf\AlignmentConverter.cs" />

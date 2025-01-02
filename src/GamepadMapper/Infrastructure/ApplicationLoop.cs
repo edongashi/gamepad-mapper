@@ -13,10 +13,16 @@ namespace GamepadMapper.Infrastructure
 {
     public class ApplicationLoop
     {
-        public ApplicationLoop(RootConfiguration configuration, ProfileCollection profileCollection, IMenuController menuController, IGamePadStateReader stateReader)
+        public ApplicationLoop(
+            RootConfiguration configuration,
+            ProfileCollection profileCollection,
+            FlagCollection flags,
+            IMenuController menuController,
+            IGamePadStateReader stateReader)
         {
             Configuration = configuration;
             ProfileCollection = profileCollection;
+            Flags = flags;
             MenuController = menuController;
             StateReader = stateReader;
         }
@@ -24,6 +30,8 @@ namespace GamepadMapper.Infrastructure
         public RootConfiguration Configuration { get; }
 
         public ProfileCollection ProfileCollection { get; }
+
+        public FlagCollection Flags { get; }
 
         public IMenuController MenuController { get; }
 
@@ -94,7 +102,12 @@ namespace GamepadMapper.Infrastructure
                     var newProfile = GetCurrentProfile();
                     if (!ReferenceEquals(profile, newProfile))
                     {
-                        profile?.ClearState();
+                        if (profile != null)
+                        {
+                            profile.ClearState();
+                            Flags.Remove(profile.Name);
+                        }
+
                         foreach (var pair in inputState.ButtonStates)
                         {
                             if (pair.Value.IsPressed)
@@ -104,6 +117,7 @@ namespace GamepadMapper.Infrastructure
                         }
 
                         profile = newProfile;
+                        Flags.Add(newProfile.Name);
                     }
 
                     // Input disabling
@@ -127,7 +141,7 @@ namespace GamepadMapper.Infrastructure
                         UpdateProfile(profile, inputState, frame, dirtyButtons);
                     }
                 }
-                
+
                 MenuController.Update(frame);
 
                 lastFrame = frameStart;

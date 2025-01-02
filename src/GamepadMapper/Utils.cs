@@ -2,11 +2,22 @@
 using WindowsInput.Native;
 using GamepadMapper.Configuration;
 using GamepadMapper.Input;
+using System.Linq;
 
 namespace GamepadMapper
 {
     internal static class Utils
     {
+        private static string EscapeQuotes(string value)
+        {
+            return value.Replace("\"", "\"\"");
+        }
+
+        public static string Escape(string value)
+        {
+            return value.All(x => char.IsLetterOrDigit(x) || x == '!') ? value : $"\"{EscapeQuotes(value)}\"";
+        }
+
         public static List<VirtualKeyCode> ModifiersToKeys(ModifierKeys keys)
         {
             var list = new List<VirtualKeyCode>(3);

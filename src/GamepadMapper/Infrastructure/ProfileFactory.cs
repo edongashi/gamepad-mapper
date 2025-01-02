@@ -17,12 +17,14 @@ namespace GamepadMapper.Infrastructure
     {
         public ProfileFactory(
             RootConfiguration rootConfiguration,
+            FlagCollection flags,
             IActionFactory actionFactory,
             IKeyboardSimulator keyboard,
             IMouseSimulator mouse,
             IMenuController menuController)
         {
             RootConfiguration = rootConfiguration;
+            Flags = flags;
             ActionFactory = actionFactory;
             Keyboard = keyboard;
             Mouse = mouse;
@@ -30,6 +32,8 @@ namespace GamepadMapper.Infrastructure
         }
 
         public RootConfiguration RootConfiguration { get; }
+
+        public FlagCollection Flags { get; }
 
         public IActionFactory ActionFactory { get; }
 
@@ -79,6 +83,9 @@ namespace GamepadMapper.Infrastructure
                             modifiers.Add((Button)modMapping.InputKey);
                         }
 
+                        break;
+                    case FlagMapping flagMapping:
+                        handlers[flagMapping.InputKey] = new KeyMapHandler(new FlagMapActuator(Flags, flagMapping.Flag));
                         break;
                     case PressBinding pressBinding:
                         handlers[pressBinding.InputKey] = pressBinding.Repeat
