@@ -31,10 +31,10 @@ namespace GamepadMapper.Handlers
             var speed = MovementConfiguration.Speed * frame.TimeDelta / 1000d;
             var accel = MovementConfiguration.Acceleration;
             double x, y;
-            if (accel != 0d && accel != 1d)
+            if (accel != 1d)
             {
                 var angle = state.Angle;
-                var distance = Math.Pow(1d + state.Distance, accel) - 1d;
+                var distance = Math.Pow(state.Distance, accel);
                 x = distance * Math.Cos(angle);
                 y = -distance * Math.Sin(angle);
             }

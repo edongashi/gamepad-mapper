@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using GamepadMapper.Configuration.Parsing;
 
 namespace GamepadMapper.Configuration
@@ -144,28 +143,37 @@ namespace GamepadMapper.Configuration
                 Toggle = () => Repeat.Interval = Toggle(Repeat.Interval, 25d, 50d, 100d),
                 Reset = () => Repeat.Interval = 50d
             });
+
+            const double MIN_MOUSE_SPEED = 50d;
+            const double MAX_MOUSE_SPEED = 5000d;
+            const double DEF_MOUSE_SPEED = 400d;
             Add(new ConfigDescriptor("mouse.speed")
             {
                 GetValue = () => Mouse.Speed,
-                SetValue = val => Mouse.Speed = Clamp(val, 50d, 1000d, 400d),
-                IsValidValue = val => IsValid(val, 50d, 1000d),
+                SetValue = val => Mouse.Speed = Clamp(val, MIN_MOUSE_SPEED, MAX_MOUSE_SPEED, DEF_MOUSE_SPEED),
+                IsValidValue = val => IsValid(val, MIN_MOUSE_SPEED, MAX_MOUSE_SPEED),
                 FormatValue = () => Mouse.Speed.ToString(),
-                Increment = () => Mouse.Speed = Clamp(Mouse.Speed + 50d, 50d, 1000d),
-                Decrement = () => Mouse.Speed = Clamp(Mouse.Speed - 50d, 50d, 1000d),
+                Increment = () => Mouse.Speed = Clamp(Mouse.Speed + 50d, MIN_MOUSE_SPEED, MAX_MOUSE_SPEED),
+                Decrement = () => Mouse.Speed = Clamp(Mouse.Speed - 50d, MIN_MOUSE_SPEED, MAX_MOUSE_SPEED),
                 Toggle = () => Mouse.Speed = Toggle(Mouse.Speed, 200d, 400d, 600d, 800d),
-                Reset = () => Mouse.Speed = 400d
+                Reset = () => Mouse.Speed = DEF_MOUSE_SPEED
             });
+
+            const double MIN_MOUSE_ACCELERATION = 0d;
+            const double MAX_MOUSE_ACCELERATION = 10d;
+            const double DEF_MOUSE_ACCELERATION = 1.3d;
             Add(new ConfigDescriptor("mouse.acceleration")
             {
                 GetValue = () => Mouse.Acceleration,
-                SetValue = val => Mouse.Acceleration = Clamp(val, 1d, 2d, 1.3d),
-                IsValidValue = val => IsValid(val, 1d, 2d),
+                SetValue = val => Mouse.Acceleration = Clamp(val, MIN_MOUSE_ACCELERATION, MAX_MOUSE_ACCELERATION, DEF_MOUSE_ACCELERATION),
+                IsValidValue = val => IsValid(val, MIN_MOUSE_ACCELERATION, MAX_MOUSE_ACCELERATION),
                 FormatValue = () => Mouse.Acceleration.ToString(),
-                Increment = () => Mouse.Acceleration = Clamp(Mouse.Acceleration + 0.1d, 1d, 2d),
-                Decrement = () => Mouse.Acceleration = Clamp(Mouse.Acceleration - 0.1d, 1d, 2d),
+                Increment = () => Mouse.Acceleration = Clamp(Mouse.Acceleration + 0.1d, MIN_MOUSE_ACCELERATION, MAX_MOUSE_ACCELERATION),
+                Decrement = () => Mouse.Acceleration = Clamp(Mouse.Acceleration - 0.1d, MIN_MOUSE_ACCELERATION, MAX_MOUSE_ACCELERATION),
                 Toggle = () => Mouse.Acceleration = Toggle(Mouse.Acceleration, 1d, 1.3d, 1.6d),
-                Reset = () => Mouse.Acceleration = 1.3d
+                Reset = () => Mouse.Acceleration = DEF_MOUSE_ACCELERATION
             });
+
             Add(new ConfigDescriptor("mouse.invertx")
             {
                 GetValue = () => Mouse.InvertX,
