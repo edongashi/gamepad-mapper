@@ -1,5 +1,4 @@
-﻿using System;
-using GamepadMapper.Menus;
+﻿using GamepadMapper.Menus;
 
 namespace GamepadMapper.Actuators
 {

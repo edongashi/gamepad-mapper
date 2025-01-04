@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using GamepadMapper.Configuration;
 using GamepadMapper.Input;
 using GamepadMapper.Menus;
@@ -29,21 +29,27 @@ namespace GamepadMapper.Infrastructure
 
         public IGamePadStateReader StateReader { get; }
 
-        public async Task Run(CancellationToken cancellation)
+        public void Run(CancellationToken cancellation)
         {
             var connected = false;
             var isEnabled = true;
             var lastBack = false;
             var lastStart = false;
-            var lastFrame = DateTime.Now;
             var dirtyButtons = new HashSet<Button>();
             Profile profile = null;
 
-            await Task.Delay(TimeSpan.FromMilliseconds(1000d / Configuration.Fps), cancellation);
+            var fps = Configuration.Fps;
+            var frameTime = 1000.0 / fps;
+            const double unconnectedFrameTime = 250d;
+
+            var stopwatch = Stopwatch.StartNew();
+            var previousTime = 0d;
+
             while (!cancellation.IsCancellationRequested)
             {
-                var frameStart = DateTime.Now;
-                double fps;
+                var currentTime = stopwatch.Elapsed.TotalMilliseconds;
+                var deltaTime = currentTime - previousTime;
+                previousTime = currentTime;
 
                 if (!TryGetLowestIndex(out var state, out var playerIndex))
                 {
@@ -56,7 +62,6 @@ namespace GamepadMapper.Infrastructure
                     }
 
                     connected = false;
-                    fps = 5d;
                 }
                 else
                 {
@@ -66,11 +71,10 @@ namespace GamepadMapper.Infrastructure
                     }
 
                     connected = true;
-                    fps = Configuration.Fps;
                 }
 
                 var inputState = InputState.FromGamePadState(state, Configuration.Deadzone);
-                var frame = new FrameDetails(playerIndex, profile, frameStart, (frameStart - lastFrame).TotalMilliseconds, fps, inputState, connected);
+                var frame = new FrameDetails(playerIndex, profile, deltaTime, fps, inputState, connected);
                 if (connected)
                 {
                     if (dirtyButtons.Count != 0)
@@ -130,12 +134,15 @@ namespace GamepadMapper.Infrastructure
 
                 MenuController.Update(frame);
 
-                lastFrame = frameStart;
-
                 // Try to keep a constant frame rate.
-                await Task.Delay(TimeSpan.FromMilliseconds(
-                    Math.Max(1000d / fps - (DateTime.Now - frameStart).TotalMilliseconds, 1d)),
-                    cancellation);
+                var sleepTime = connected
+                    ? frameTime - (stopwatch.Elapsed.TotalMilliseconds - currentTime)
+                    : unconnectedFrameTime;
+
+                if (sleepTime > 0d)
+                {
+                    Thread.Sleep((int)Math.Max(1d, sleepTime));
+                }
             }
         }
 

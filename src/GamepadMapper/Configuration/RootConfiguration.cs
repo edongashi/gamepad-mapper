@@ -344,9 +344,9 @@ namespace GamepadMapper.Configuration
                 {
                     fps = 1d;
                 }
-                else if (value > 300d)
+                else if (value > 1000d)
                 {
-                    fps = 300d;
+                    fps = 1000d;
                 }
                 else
                 {

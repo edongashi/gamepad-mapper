@@ -91,7 +91,7 @@ namespace GamepadMapper.Configuration.Parsing
 
                         if (token0 == "fps")
                         {
-                            if (InvariantDouble.TryParse(token2, out var fps) && fps >= 1d && fps <= 300d)
+                            if (InvariantDouble.TryParse(token2, out var fps) && fps >= 1d && fps <= 1000d)
                             {
                                 config.Fps = fps;
                             }

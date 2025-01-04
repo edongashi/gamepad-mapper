@@ -1,8 +1,5 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using GamepadMapper.Configuration;
 using GamepadMapper.Configuration.Parsing;
@@ -19,7 +16,7 @@ namespace GamepadMapper.Wpf
         private static string[] appArgs;
         private static IKernel kernel;
         private static CancellationTokenSource cancellation;
-        private static Task loopTask;
+        private static Thread loopThread;
         private static readonly ILogger Logger = new FileLogger();
 
         [STAThread]
@@ -66,21 +63,14 @@ namespace GamepadMapper.Wpf
             var window = new MainWindow(mainLoop.MenuController);
             window.Show();
             cancellation = new CancellationTokenSource();
-            loopTask = Task.Run(() => mainLoop.Run(cancellation.Token));
+            loopThread = new Thread(() => mainLoop.Run(cancellation.Token));
+            loopThread.Start();
         }
 
         private void OnAppExit(object sender, ExitEventArgs e)
         {
             cancellation?.Cancel();
-            try
-            {
-                loopTask?.Wait(1000);
-            }
-            catch (AggregateException ex)
-            when (ex.InnerExceptions.FirstOrDefault() is TaskCanceledException)
-            {
-            }
-
+            loopThread?.Join(1000);
             kernel?.Dispose();
         }
     }
