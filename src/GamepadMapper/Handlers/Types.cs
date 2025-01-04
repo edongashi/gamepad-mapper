@@ -1,5 +1,4 @@
-﻿using GamepadMapper.Configuration;
-using GamepadMapper.Input;
+﻿using GamepadMapper.Input;
 
 namespace GamepadMapper.Handlers
 {
@@ -10,11 +9,11 @@ namespace GamepadMapper.Handlers
 
     public interface IAnalogHandler : IHandler
     {
-        void Update(AnalogState state, ThumbStick thumbStick, FrameDetails frame);
+        void Update(AnalogState state, FrameDetails frame);
     }
 
     public interface IButtonHandler : IHandler
     {
-        void Update(ButtonState state, InputKey inputKey, FrameDetails frame);
+        void Update(ButtonState state, FrameDetails frame);
     }
 }

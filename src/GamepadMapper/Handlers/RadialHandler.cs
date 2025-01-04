@@ -39,7 +39,7 @@ namespace GamepadMapper.Handlers
             memory.Clear();
         }
 
-        public void Update(AnalogState state, ThumbStick thumbStick, FrameDetails frame)
+        public void Update(AnalogState state, FrameDetails frame)
         {
             var x = Configuration.InvertX ? -state.X : state.X;
             var y = Configuration.InvertY ? state.Y : -state.Y;

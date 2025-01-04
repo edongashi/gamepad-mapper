@@ -30,7 +30,7 @@ namespace GamepadMapper.Handlers
             }
         }
 
-        public void Update(ButtonState state, InputKey inputKey, FrameDetails frame)
+        public void Update(ButtonState state, FrameDetails frame)
         {
             if (state.IsPressed)
             {

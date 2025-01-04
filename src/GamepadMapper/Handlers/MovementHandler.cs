@@ -25,7 +25,7 @@ namespace GamepadMapper.Handlers
             }
         }
 
-        public void Update(AnalogState state, ThumbStick thumbStick, FrameDetails frame)
+        public void Update(AnalogState state, FrameDetails frame)
         {
             // Speed is pixels per second
             var speed = MovementConfiguration.Speed * frame.TimeDelta / 1000d;

@@ -206,8 +206,8 @@ namespace GamepadMapper.Infrastructure
                 }
             }
 
-            profile.LeftAnalogHandler?.Update(inputState.LeftAnalogState, ThumbStick.Left, frame);
-            profile.RightAnalogHandler?.Update(inputState.RightAnalogState, ThumbStick.Right, frame);
+            profile.LeftAnalogHandler?.Update(inputState.LeftAnalogState, frame);
+            profile.RightAnalogHandler?.Update(inputState.RightAnalogState, frame);
             var nonPressedKey = new ButtonState();
             // Some enum hacking is done below...
             // Button is converted to InputKey 1 to 1, and for converting to Mod<Button> it's added by an offset.
@@ -228,12 +228,12 @@ namespace GamepadMapper.Infrastructure
                 var modButton = (InputKey)(modA + (int)pair.Key);
                 if (profile.ButtonHandlers.TryGetValue(button, out var buttonHandler))
                 {
-                    buttonHandler?.Update(isModifierDown ? nonPressedKey : pair.Value, button, frame);
+                    buttonHandler?.Update(isModifierDown ? nonPressedKey : pair.Value, frame);
                 }
 
                 if (profile.ButtonHandlers.TryGetValue(modButton, out var modButtonHandler))
                 {
-                    modButtonHandler?.Update(isModifierDown ? pair.Value : nonPressedKey, modButton, frame);
+                    modButtonHandler?.Update(isModifierDown ? pair.Value : nonPressedKey, frame);
                 }
             }
         }
