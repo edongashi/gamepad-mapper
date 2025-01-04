@@ -612,36 +612,16 @@ namespace GamepadMapper.Configuration
 
         private string GetPreviousProfile(string currentProfile)
         {
-            var index = ProfilesWithoutMenu()
-                .FindIndex(p => string.Equals(p.Name, currentProfile, StringComparison.OrdinalIgnoreCase));
-            if (index == -1)
-            {
-                return Profiles.FirstOrDefault()?.Name;
-            }
-
-            if (index == 0)
-            {
-                index = Profiles.Count;
-            }
-
-            return Profiles[index - 1].Name;
+            var profiles = ProfilesWithoutMenu();
+            var index = profiles.FindIndex(p => string.Equals(p.Name, currentProfile, StringComparison.OrdinalIgnoreCase));
+            return index == -1 ? "Default" : profiles[(index + profiles.Count - 1) % profiles.Count].Name;
         }
 
         private string GetNextProfile(string currentProfile)
         {
-            var index = ProfilesWithoutMenu()
-                .FindIndex(p => string.Equals(p.Name, currentProfile, StringComparison.OrdinalIgnoreCase));
-            if (index == -1)
-            {
-                return Profiles.FirstOrDefault()?.Name;
-            }
-
-            if (index == Profiles.Count - 1)
-            {
-                index = -1;
-            }
-
-            return Profiles[index + 1].Name;
+            var profiles = ProfilesWithoutMenu();
+            var index = profiles.FindIndex(p => string.Equals(p.Name, currentProfile, StringComparison.OrdinalIgnoreCase));
+            return index == -1 ? "Default" : profiles[(index + 1) % profiles.Count].Name;
         }
 
         private void Add(IConfigDescriptor descriptor)
