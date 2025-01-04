@@ -53,7 +53,7 @@ namespace GamepadMapper.Handlers
                     if (timeLeft <= 0d)
                     {
                         Action.Execute();
-                        timeLeft = RepeatConfiguration.Interval;
+                        timeLeft = Math.Max(1d, timeLeft + RepeatConfiguration.Interval);
                     }
                 }
             }
