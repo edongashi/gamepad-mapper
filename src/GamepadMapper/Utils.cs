@@ -3,11 +3,18 @@ using WindowsInput.Native;
 using GamepadMapper.Configuration;
 using GamepadMapper.Input;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace GamepadMapper
 {
     internal static class Utils
     {
+        [DllImport("winmm.dll")]
+        public static extern uint timeBeginPeriod(uint period);
+
+        [DllImport("winmm.dll")]
+        public static extern uint timeEndPeriod(uint period);
+
         private static string EscapeQuotes(string value)
         {
             return value.Replace("\"", "\"\"");

@@ -7,8 +7,6 @@ namespace GamepadMapper.Configuration
 {
     public class RootConfiguration
     {
-        private static string Escape(string value) => value?.Replace("\"", "\"\"");
-
         private static double Clamp(double value, double min, double max)
         {
             return value > max ? max : (value < min ? min : value);
@@ -61,7 +59,7 @@ namespace GamepadMapper.Configuration
         private readonly Dictionary<string, IConfigDescriptor> descriptors
             = new Dictionary<string, IConfigDescriptor>(StringComparer.OrdinalIgnoreCase);
 
-        private double fps = 144d;
+        private double fps = 1000d;
 
         public RootConfiguration()
         {

@@ -58,6 +58,7 @@ namespace GamepadMapper.Wpf
                 return;
             }
 
+            Utils.timeBeginPeriod(1u);
             kernel = new StandardKernel(new ApplicationModule(config));
             var mainLoop = kernel.Get<ApplicationLoop>();
             var window = new MainWindow(mainLoop.MenuController);
@@ -72,6 +73,7 @@ namespace GamepadMapper.Wpf
             cancellation?.Cancel();
             loopThread?.Join(1000);
             kernel?.Dispose();
+            Utils.timeEndPeriod(1u);
         }
     }
 }

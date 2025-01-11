@@ -1,5 +1,5 @@
-﻿# FPS
-fps = 144
+﻿# FPS (polling rate)
+fps = 1000
 
 # Deadzones
 deadzone.ls = 10%
@@ -13,7 +13,7 @@ repeat.delay        = 600   # Time before buttons repeat
 repeat.interval     = 50    # Interval between repeated characters
 
 # Mouse
-mouse.speed         = 400   # Speed in pixels per second
+mouse.speed         = 2000   # Speed in pixels per second
 mouse.acceleration  = 1.3
 mouse.invertX       = false
 mouse.invertY       = false
